@@ -1,13 +1,34 @@
 require('dotenv').config();
-const {Client, Events, GatewayIntentBits, EmbedBuilder, PermissionsBitField, Permissions, SlashCommandBuilder, ActivityType} = require('discord.js');
+const {Client, Events, GatewayIntentBits, EmbedBuilder, PermissionsBitField, Permissions, SlashCommandBuilder, ActivityType, ActionRow, MessageComponentInteraction, ButtonBuilder, ButtonStyle, ActionRowBuilder, InteractionResponse, InteractionCollector} = require('discord.js');
 const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]});
 
 client.on(Events.ClientReady, (x) => {
     console.log(`${x.user.tag} is ready!`);
+
+    const activities = [
+        {
+            name: '/help',
+            type: ActivityType.Watching,
+        },
+        {
+            name: 'Work in progress...',
+            type: ActivityType.Playing,
+        },
+        {
+            name: 'Testing...',
+            type: ActivityType.Listening,
+        }
+    ]
+
+    setInterval(() => {
+        const random = Math.floor(Math.random()*activities.length);
+        client.user.setActivity(activities[random]);
+    }, 10000)
     client.user.setActivity({
         name: '/help',
         type: ActivityType.Watching,
     });
+
 
     const ping = new SlashCommandBuilder()
     .setName ('ping')
@@ -25,7 +46,8 @@ client.on(Events.ClientReady, (x) => {
     
     const help = new SlashCommandBuilder()
     .setName ('help')
-    .setDescription('Shows a list of commands and information.');
+    .setDescription('Shows a list of commands and information.')
+    ;
 
     client.application.commands.create(ping);
     client.application.commands.create(hello);
@@ -33,7 +55,7 @@ client.on(Events.ClientReady, (x) => {
 
 });
 
-client.on('interactionCreate', (interaction) => {
+client.on('interactionCreate', async (interaction) => {
 
     if (!interaction.isChatInputCommand()) return;
 
@@ -72,16 +94,35 @@ client.on('interactionCreate', (interaction) => {
         )
         .setColor(0xcdebf9);
 
-        interaction.reply({embeds: [embed]});
+        const buttonembed = new EmbedBuilder()
+        .setDescription('BUTTON WORKS');
+
+        const tester = new ButtonBuilder()
+        .setCustomId('tester')
+        .setLabel('TESTING BUTTON')
+        .setStyle(ButtonStyle.Primary);
+
+        const row = new ActionRowBuilder()
+        .addComponents(tester);
+
+        const response = await interaction.reply({
+            embeds: [embed],
+            components: [row],
+        });
+
+        const confirmation = await response.awaitMessageComponent({time: 60_000});
+
+        if (confirmation.customId === 'tester'){
+            await confirmation.update({
+                embeds:[buttonembed],
+                components: [],
+            });
+        }
     }
 
-
-
-
-
-
-
 });
+
+
 
 client.login(process.env.TOKEN);
 
