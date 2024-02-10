@@ -46,12 +46,59 @@ client.on(Events.ClientReady, (x) => {
     
     const help = new SlashCommandBuilder()
     .setName ('help')
-    .setDescription('Shows a list of commands and information.')
-    ;
+    .setDescription('Shows a list of commands and information.');
+
+    const poll = new SlashCommandBuilder()
+    .setName ('poll')
+    .setDescription ('This command will create a poll')
+    .addStringOption(option =>
+        option
+        .setName('question')
+        .setDescription('What is the poll about?')
+        .setRequired(true)
+        )
+    .addStringOption(option =>
+        option
+        .setName('choice1')
+        .setDescription('Poll choice')
+        .setRequired(true)
+        )
+    .addStringOption(option =>
+        option
+        .setName('choice2')
+        .setDescription('Poll choice')
+        .setRequired(true)
+        )
+    .addStringOption(option =>
+        option
+        .setName('choice3')
+        .setDescription('Poll choice')
+        .setRequired(false)
+        )
+    .addStringOption(option =>
+        option
+        .setName('choice4')
+        .setDescription('Poll choice')
+        .setRequired(false)
+        )
+    .addStringOption(option =>
+        option
+        .setName('choice5')
+        .setDescription('Poll choice')
+        .setRequired(false)
+        )
+    .addStringOption(option =>
+        option
+        .setName('choice6')
+        .setDescription('Poll choice')
+        .setRequired(false)
+        );
+
 
     client.application.commands.create(ping);
     client.application.commands.create(hello);
     client.application.commands.create(help);
+    client.application.commands.create(poll);
 
 });
 
@@ -73,6 +120,58 @@ client.on('interactionCreate', async (interaction) => {
         }
     }
 
+
+    if (interaction.commandName === 'poll'){
+        const Usermessage = interaction.options.getString('question');
+        const choice1 = interaction.options.getString('choice1');
+        const choice2 = interaction.options.getString('choice2');
+        const choice3 = interaction.options.getString('choice3');
+        const choice4 = interaction.options.getString('choice4');
+        const choice5 = interaction.options.getString('choice5');
+        const choice6 = interaction.options.getString('choice6');
+
+        const embedPoll = new EmbedBuilder()
+        .setTitle(`${Usermessage}`);
+        
+        if (choice3 === null){
+            embedPoll.setDescription(`> <:w_number_1:1205788993556324373> ${choice1}\n> <:w_number_2:1205789037126754385> ${choice2}`)
+        } 
+        else if (choice4 === null){
+            embedPoll.setDescription(`<:w_number_1:1205788993556324373> ${choice1}\n<:w_number_2:1205789037126754385> ${choice2}\n<:w_number_3:1205789065392164885> ${choice3}`)
+        }
+        else if (choice5 === null){
+            embedPoll.setDescription(`<:w_number_1:1205788993556324373> ${choice1}\n<:w_number_2:1205789037126754385> ${choice2}\n<:w_number_3:1205789065392164885> ${choice3}\n<:w_number_4:1205789094475464755> ${choice4}`)
+        }
+        else if (choice6 === null){
+            embedPoll.setDescription(`<:w_number_1:1205788993556324373> ${choice1}\n<:w_number_2:1205789037126754385> ${choice2}\n<:w_number_3:1205789065392164885> ${choice3}\n<:w_number_4:1205789094475464755> ${choice4}\n<:w_number_5:1205789161702031381> ${choice5}`)   
+        } else {
+            embedPoll.setDescription(`<:w_number_1:1205788993556324373> ${choice1}\n<:w_number_2:1205789037126754385> ${choice2}\n<:w_number_3:1205789065392164885> ${choice3}\n<:w_number_4:1205789094475464755> ${choice4}\n<:w_number_5:1205789161702031381> ${choice5}\n<:w_number_6:1205789122434826281> ${choice6}`)
+        }
+
+        interaction.reply({
+            embeds: [embedPoll],
+        });
+
+
+        const messagePoll = await interaction.fetchReply();
+        if (choice3 === null){
+            messagePoll.react('<:w_number_1:1205788993556324373>')
+            messagePoll.react('<:w_number_2:1205789037126754385>')
+        } 
+        else if (choice4 === null){
+
+        }
+        else if (choice5 === null){
+
+        }
+        else if (choice6 === null){
+
+        }
+        else {
+
+        }
+
+    }
 
     if (interaction.commandName=== 'help') {
         const embed = new EmbedBuilder()
@@ -108,6 +207,7 @@ client.on('interactionCreate', async (interaction) => {
         const response = await interaction.reply({
             embeds: [embed],
             components: [row],
+            ephemeral: true,
         });
 
         const confirmation = await response.awaitMessageComponent({time: 60_000});
@@ -116,6 +216,7 @@ client.on('interactionCreate', async (interaction) => {
             await confirmation.update({
                 embeds:[buttonembed],
                 components: [],
+                ephemeral: true,
             });
         }
     }
