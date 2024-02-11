@@ -1,5 +1,5 @@
 require('dotenv').config();
-const {Client, Events, GatewayIntentBits, EmbedBuilder, PermissionsBitField, Permissions, SlashCommandBuilder, ActivityType, ActionRow, MessageComponentInteraction, ButtonBuilder, ButtonStyle, ActionRowBuilder, InteractionResponse, InteractionCollector} = require('discord.js');
+const {Client, Events, GatewayIntentBits, EmbedBuilder, PermissionsBitField, Permissions, SlashCommandBuilder, ActivityType, ActionRow, MessageComponentInteraction, ButtonBuilder, ButtonStyle, ActionRowBuilder, InteractionResponse, InteractionCollector, ComponentType} = require('discord.js');
 const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]});
 
 client.on(Events.ClientReady, (x) => {
@@ -8,11 +8,11 @@ client.on(Events.ClientReady, (x) => {
     const activities = [
         {
             name: '/help',
-            type: ActivityType.Watching,
+            type: ActivityType.Listening,
         },
         {
             name: 'Work in progress...',
-            type: ActivityType.Playing,
+            type: ActivityType.Listening,
         },
         {
             name: 'Testing...',
@@ -43,6 +43,23 @@ client.on(Events.ClientReady, (x) => {
         .setDescription('user to say hi to')
         .setRequired(false)
         );
+
+    const mute = new SlashCommandBuilder()
+    .setName ('mute')
+    .setDescription ('Mutes the desired member')
+    .addUserOption(option =>
+        option
+        .setName('user')
+        .setDescription('user to mute')
+        .setRequired(true)
+        )
+    .addIntegerOption(option =>
+        option
+        .setName('duration')
+        .setDescription('mute duration in seconds')
+        .setRequired(true)
+        )
+    
     
     const help = new SlashCommandBuilder()
     .setName ('help')
@@ -94,11 +111,16 @@ client.on(Events.ClientReady, (x) => {
         .setRequired(false)
         );
 
+        const jackie = new SlashCommandBuilder()
+        .setName ('jackie')
+        .setDescription('Try and see!!!!');
 
     client.application.commands.create(ping);
     client.application.commands.create(hello);
     client.application.commands.create(help);
     client.application.commands.create(poll);
+    client.application.commands.create(jackie);
+    client.application.commands.create(mute);
 
 });
 
@@ -131,21 +153,22 @@ client.on('interactionCreate', async (interaction) => {
         const choice6 = interaction.options.getString('choice6');
 
         const embedPoll = new EmbedBuilder()
-        .setTitle(`${Usermessage}`);
+        .setTitle(`**${Usermessage}**`)
+        .setColor(0x738678);
         
         if (choice3 === null){
             embedPoll.setDescription(`> <:w_number_1:1205788993556324373> ${choice1}\n> <:w_number_2:1205789037126754385> ${choice2}`)
         } 
         else if (choice4 === null){
-            embedPoll.setDescription(`<:w_number_1:1205788993556324373> ${choice1}\n<:w_number_2:1205789037126754385> ${choice2}\n<:w_number_3:1205789065392164885> ${choice3}`)
+            embedPoll.setDescription(`> <:w_number_1:1205788993556324373> ${choice1}\n> <:w_number_2:1205789037126754385> ${choice2}\n> <:w_number_3:1205789065392164885> ${choice3}`)
         }
         else if (choice5 === null){
-            embedPoll.setDescription(`<:w_number_1:1205788993556324373> ${choice1}\n<:w_number_2:1205789037126754385> ${choice2}\n<:w_number_3:1205789065392164885> ${choice3}\n<:w_number_4:1205789094475464755> ${choice4}`)
+            embedPoll.setDescription(`> <:w_number_1:1205788993556324373> ${choice1}\n> <:w_number_2:1205789037126754385> ${choice2}\n> <:w_number_3:1205789065392164885> ${choice3}\n> <:w_number_4:1205789094475464755> ${choice4}`)
         }
         else if (choice6 === null){
-            embedPoll.setDescription(`<:w_number_1:1205788993556324373> ${choice1}\n<:w_number_2:1205789037126754385> ${choice2}\n<:w_number_3:1205789065392164885> ${choice3}\n<:w_number_4:1205789094475464755> ${choice4}\n<:w_number_5:1205789161702031381> ${choice5}`)   
+            embedPoll.setDescription(`> <:w_number_1:1205788993556324373> ${choice1}\n> <:w_number_2:1205789037126754385> ${choice2}\n> <:w_number_3:1205789065392164885> ${choice3}\n> <:w_number_4:1205789094475464755> ${choice4}\n> <:w_number_5:1205789161702031381> ${choice5}`)   
         } else {
-            embedPoll.setDescription(`<:w_number_1:1205788993556324373> ${choice1}\n<:w_number_2:1205789037126754385> ${choice2}\n<:w_number_3:1205789065392164885> ${choice3}\n<:w_number_4:1205789094475464755> ${choice4}\n<:w_number_5:1205789161702031381> ${choice5}\n<:w_number_6:1205789122434826281> ${choice6}`)
+            embedPoll.setDescription(`> <:w_number_1:1205788993556324373> ${choice1}\n> <:w_number_2:1205789037126754385> ${choice2}\n> <:w_number_3:1205789065392164885> ${choice3}\n> <:w_number_4:1205789094475464755> ${choice4}\n> <:w_number_5:1205789161702031381> ${choice5}\n> <:w_number_6:1205789122434826281> ${choice6}`)
         }
 
         interaction.reply({
@@ -159,16 +182,30 @@ client.on('interactionCreate', async (interaction) => {
             messagePoll.react('<:w_number_2:1205789037126754385>')
         } 
         else if (choice4 === null){
-
+            messagePoll.react('<:w_number_1:1205788993556324373>')
+            messagePoll.react('<:w_number_2:1205789037126754385>')
+            messagePoll.react('<:w_number_3:1205789065392164885>')
         }
         else if (choice5 === null){
-
+            messagePoll.react('<:w_number_1:1205788993556324373>')
+            messagePoll.react('<:w_number_2:1205789037126754385>')
+            messagePoll.react('<:w_number_3:1205789065392164885>')
+            messagePoll.react('<:w_number_4:1205789094475464755>')
         }
         else if (choice6 === null){
-
+            messagePoll.react('<:w_number_1:1205788993556324373>')
+            messagePoll.react('<:w_number_2:1205789037126754385>')
+            messagePoll.react('<:w_number_3:1205789065392164885>')
+            messagePoll.react('<:w_number_4:1205789094475464755>')
+            messagePoll.react('<:w_number_5:1205789161702031381>')
         }
         else {
-
+            messagePoll.react('<:w_number_1:1205788993556324373>')
+            messagePoll.react('<:w_number_2:1205789037126754385>')
+            messagePoll.react('<:w_number_3:1205789065392164885>')
+            messagePoll.react('<:w_number_4:1205789094475464755>')
+            messagePoll.react('<:w_number_5:1205789161702031381>')
+            messagePoll.react('<:w_number_6:1205789122434826281>')
         }
 
     }
@@ -179,19 +216,19 @@ client.on('interactionCreate', async (interaction) => {
         .setDescription('Commands start with `/`')
         .addFields({
             name: 'Fun Commands',
-            value: '`hello` | `ping`',
+            value: '`hello` | `ping` | `jackie`',
             inline: true,
         },{
             name : 'Moderation',
-            value: 'I have not made these yet',
+            value: '`mute`',
             inline: true,
         },{
             name : 'Utilities',
-            value: 'I have not made these yet either',
+            value: '`poll`',
             inline: true,
         }
         )
-        .setColor(0xcdebf9);
+        .setColor(0x738678);
 
         const buttonembed = new EmbedBuilder()
         .setDescription('BUTTON WORKS');
@@ -201,29 +238,64 @@ client.on('interactionCreate', async (interaction) => {
         .setLabel('TESTING BUTTON')
         .setStyle(ButtonStyle.Primary);
 
-        const row = new ActionRowBuilder()
+        const second = new ButtonBuilder()
+        .setCustomId('second')
+        .setLabel('SECOND BUTTON')
+        .setStyle(ButtonStyle.Danger);
+
+        const row1 = new ActionRowBuilder()
         .addComponents(tester);
+
+        const row2 = new ActionRowBuilder()
+        .addComponents(second);
 
         const response = await interaction.reply({
             embeds: [embed],
-            components: [row],
+            components: [row1],
             ephemeral: true,
+            
         });
 
-        const confirmation = await response.awaitMessageComponent({time: 60_000});
+        const collectorfilter = (i) => i.user.id === interaction.user.id;
 
-        if (confirmation.customId === 'tester'){
-            await confirmation.update({
-                embeds:[buttonembed],
-                components: [],
-                ephemeral: true,
+        try {
+            const collector = response.createMessageComponentCollector({
+                filter: collectorfilter,
+                time: 60_000
             });
+            collector.on('collect', (collector) => {
+                if (collector.customId === 'tester'){
+                    collector.update({
+                        embeds:[buttonembed],
+                        components: [row2],
+                        ephemeral: true,
+                    })
+                }
+        
+                if (collector.customId === 'second'){
+                    collector.update({
+                        embeds:[embed],
+                        components: [row1],
+                        ephemeral: true,
+                })
+                }
+            })
+        } catch (e){
+            await interaction.editReply({content: 'no buttons pressed :(', components: []})
         }
     }
+    
+    if (interaction.commandName === 'jackie'){
+        interaction.user.send("HAPPY BIRTHDAY JACKIE");
+    }
 
+    if (interaction.commandName === 'mute'){
+        const member = interaction.options.getMember('user');
+        const time = interaction.options.getInteger('duration');
+        member.timeout(time*1000);
+        interaction.reply(`${member} has been muted`);
+    }
 });
-
-
 
 client.login(process.env.TOKEN);
 
